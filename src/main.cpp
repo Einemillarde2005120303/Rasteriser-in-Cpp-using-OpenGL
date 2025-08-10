@@ -64,7 +64,27 @@ int main() {
   unsigned char *pixels = new unsigned char[WINDOW_WIDTH * WINDOW_HEIGHT * 3];
   float *depthBuffer = new float[WINDOW_WIDTH * WINDOW_HEIGHT];
 
-  createImage(pixels, depthBuffer);
+  vec3 triangles[] = {
+    vec3(0.2, 0.9, 1),
+    vec3(-0.7, -0.9, 1e-5f),
+    vec3(-0.6, -0.1, 1e-5f),
+
+    vec3(-0.3, 0.9, 1e-5f),
+    vec3(-0.5, 0.9, 1e-5f),
+    vec3(0.9, -0.9, 1),
+
+    vec3(0.9, -0.4, 1e-5f),
+    vec3(0.9, -0.6, 1e-5f),
+    vec3(-1.5, -0.6, 1)
+  };
+
+  unsigned int sizeTriangles = 9;
+
+  vec3 colours[sizeTriangles / 3];
+
+  for (unsigned int i = 0; i < sizeTriangles / 3; i++) {
+    colours[i] = vec3(randomFloat(0.0f, 1.0f), randomFloat(0.0f, 1.0f), randomFloat(0.0f, 1.0f));
+  }
 
   unsigned int texture;
   glGenTextures(1, &texture); CHECK();
@@ -73,11 +93,6 @@ int main() {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); CHECK();
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); CHECK();
 
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels); CHECK();
-
-  delete[] pixels;
-  delete[] depthBuffer;
-
   glUseProgram(shader.id); CHECK();
 
   glUniform1i(glGetUniformLocation(shader.id, "s_texture"), 0); CHECK();
@@ -85,12 +100,18 @@ int main() {
   glBindTexture(GL_TEXTURE_2D, texture); CHECK();
 
   while (!glfwWindowShouldClose(window)) {
+    createImage(pixels, depthBuffer, triangles, colours, sizeTriangles);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels); CHECK();
+
     glClear(GL_COLOR_BUFFER_BIT); CHECK();
     glDrawElements(GL_TRIANGLES, indicesLength, GL_UNSIGNED_INT, 0); CHECK();
 
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
+
+  delete[] pixels;
+  delete[] depthBuffer;
 
   glfwTerminate();
 

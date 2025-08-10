@@ -1,3 +1,5 @@
+#pragma once
+
 #include <includes.hpp>
 
 const unsigned int WINDOW_WIDTH = 960;

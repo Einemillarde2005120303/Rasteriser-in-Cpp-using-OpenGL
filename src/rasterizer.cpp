@@ -1,3 +1,5 @@
+#pragma once
+
 #include <includes.hpp>
 
 float signedTriangleArea(vec2 a, vec2 b, vec2 c) {
@@ -60,28 +62,6 @@ void drawTriangles(unsigned char pixels[], float depthBuffer[], vec3 triangles[]
   }
 }
 
-void createImage(unsigned char pixels[], float depthBuffer[]) {
-  vec3 triangles[] = {
-    vec3(0.2, 0.9, 1),
-    vec3(-0.7, -0.9, 1e-5f),
-    vec3(-0.6, -0.1, 1e-5f),
-
-    vec3(-0.3, 0.9, 1e-5f),
-    vec3(-0.5, 0.9, 1e-5f),
-    vec3(0.9, -0.9, 1),
-
-    vec3(0.9, -0.4, 1e-5f),
-    vec3(0.9, -0.6, 1e-5f),
-    vec3(-1.5, -0.6, 1)
-  };
-
-  unsigned int sizeTriangles = 9;
-
-  vec3 colours[sizeTriangles / 3];
-
-  for (unsigned int i = 0; i < sizeTriangles / 3; i++) {
-    colours[i] = vec3(randomFloat(0.0f, 1.0f), randomFloat(0.0f, 1.0f), randomFloat(0.0f, 1.0f));
-  }
-
+void createImage(unsigned char pixels[], float depthBuffer[], vec3 triangles[], vec3 colours[], unsigned int sizeTriangles) {
   drawTriangles(pixels, depthBuffer, triangles, colours, sizeTriangles);
 }
