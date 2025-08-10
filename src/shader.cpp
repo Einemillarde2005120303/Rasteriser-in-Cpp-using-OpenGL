@@ -1,12 +1,10 @@
 #include <includes.hpp>
 
-class Shader
-{
+class Shader {
 public:
   unsigned int id;
 
-  Shader(std::string vertexPath, std::string fragmentPath)
-  {
+  Shader(std::string vertexPath, std::string fragmentPath) {
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER); CHECK();
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER); CHECK();
 
@@ -23,18 +21,18 @@ public:
 
     glCompileShader(vertexShader); CHECK();
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success); CHECK();
-    if (!success)
-    {
+    if (!success) {
       glGetShaderInfoLog(vertexShader, 512, NULL, infoLog); CHECK();
       LOG(std::format("Failed to compile vertex shader\n{}", infoLog), -1);
+      __debugbreak();
     }
 
     glCompileShader(fragmentShader); CHECK();
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success); CHECK();
-    if (!success)
-    {
+    if (!success) {
       glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog); CHECK();
       LOG(std::format("Failed to compile fragment shader\n{}", infoLog), -1);
+      __debugbreak();
     }
 
     id = glCreateProgram(); CHECK();
@@ -47,6 +45,7 @@ public:
     if(!success) {
       glGetProgramInfoLog(id, 512, NULL, infoLog); CHECK();
       LOG(std::format("Failed to create shader program\n{}", infoLog), -1);
+      __debugbreak();
     }
 
     glDeleteShader(vertexShader); CHECK();

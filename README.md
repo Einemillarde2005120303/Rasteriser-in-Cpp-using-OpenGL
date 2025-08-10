@@ -22,11 +22,11 @@ There are other easier ways to do rasterization in OpenGL (it basically does the
  - [x] Draw a quad that covers the screen
  - [x] Draw a texture onto that quad
  - [x] Figure out some math
- - [ ] Render a triangle
- - [ ] Render multiple triangles with correct depth calculations
- - [ ] Clip triangles correctly
+ - [x] Render a triangle
+ - [x] Render multiple triangles with correct depth calculations
  - [ ] Be able to Read .obj files
  - [ ] Render 3D triangles
+ - [ ] Clip triangles correctly
  - [ ] Render textures onto those 3D triangles
  - [ ] Create Shading with normals
  - [ ] (Maybe) Add some ui elements and polish the result

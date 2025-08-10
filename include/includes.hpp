@@ -5,9 +5,13 @@
 
 #include <iostream>
 #include <unordered_map>
+#include <vector>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
+#include <random>
 
 #include "../src/debug.cpp"
 #include "../src/utils.cpp"
 #include "../src/shader.cpp"
+#include "../src/rasterizer.cpp"

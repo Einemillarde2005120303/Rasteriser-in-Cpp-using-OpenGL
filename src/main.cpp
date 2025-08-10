@@ -1,7 +1,6 @@
 #include <includes.hpp>
 
-int main()
-{
+int main() {
   glfwInit();
 
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -15,12 +14,14 @@ int main()
   if (window == NULL)
   {
     LOG("Failed to create GLFW window", -1);
+    __debugbreak();
   }
   glfwMakeContextCurrent(window);
 
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
   {
     LOG("Failed to initialize GLAD", -1);
+    __debugbreak();
   }
 
   Shader shader = Shader("shaders\\shader.vert", "shaders\\shader.frag");
@@ -39,7 +40,7 @@ int main()
     2, 1, 3
   };
 
-  unsigned long long indicesLength = sizeof(indices) / sizeof(unsigned int);
+  unsigned long indicesLength = sizeof(indices) / sizeof(unsigned int);
 
   unsigned int vbo, vao, ebo;
 
@@ -60,16 +61,10 @@ int main()
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float))); CHECK();
   glEnableVertexAttribArray(1); CHECK();
 
-  unsigned char pixels[WINDOW_WIDTH * WINDOW_HEIGHT * 3];
+  unsigned char *pixels = new unsigned char[WINDOW_WIDTH * WINDOW_HEIGHT * 3];
+  float *depthBuffer = new float[WINDOW_WIDTH * WINDOW_HEIGHT];
 
-  for (size_t x = 0; x < WINDOW_WIDTH; x++) {
-    for (size_t y = 0; y < WINDOW_HEIGHT; y++) {
-      size_t i = (x + y * WINDOW_WIDTH) * 3;
-      pixels[i + 0] = (size_t)(((float)x / (float)WINDOW_WIDTH) * 255.0f);
-      pixels[i + 1] = (size_t)(((float)y / (float)WINDOW_HEIGHT) * 255.0f);
-      pixels[i + 2] = 128;
-    }
-  }
+  createImage(pixels, depthBuffer);
 
   unsigned int texture;
   glGenTextures(1, &texture); CHECK();
@@ -80,14 +75,16 @@ int main()
 
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels); CHECK();
 
+  delete[] pixels;
+  delete[] depthBuffer;
+
   glUseProgram(shader.id); CHECK();
 
   glUniform1i(glGetUniformLocation(shader.id, "s_texture"), 0); CHECK();
   glActiveTexture(GL_TEXTURE0); CHECK();
   glBindTexture(GL_TEXTURE_2D, texture); CHECK();
 
-  while (!glfwWindowShouldClose(window))
-  {
+  while (!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT); CHECK();
     glDrawElements(GL_TRIANGLES, indicesLength, GL_UNSIGNED_INT, 0); CHECK();
 
