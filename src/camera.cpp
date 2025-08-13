@@ -1,23 +1,16 @@
-#pragma once
-
 #include <includes.hpp>
 
 class Camera {
-public:
-  vec3 position;
-  vec3 forward;
-  vec3 up;
-  vec3 right;
+  public:
+  Mat4 transform;
 
-  Camera() : position(0, 0, 0), forward(0, 0, 1), up(0, 1, 0) {
-    right = forward.cross(up);
-  }
+  float n = 0.1f;
+  float f = 10;
 
-  Camera(vec3 position, vec3 forward, vec3 up) : position(position), forward(forward), up(up) {
-    right = forward.cross(up);
-  }
+  Camera() : transform(Mat4(Mat4::IDENTITY)) {}
 
-  void getTransformationMatrix() const {
-    // TODO: Implement camera transformation matrix calculation
+  Vec4 transformPoint(Vec4 p) const {
+    Vec4 relP = transform.inverse() * p;
+    return Vec4(p.x / p.z, p.y / p.z, p.z);
   }
 };

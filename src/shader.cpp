@@ -1,9 +1,7 @@
-#pragma once
-
 #include <includes.hpp>
 
 class Shader {
-public:
+  public:
   unsigned int id;
 
   Shader(std::string vertexPath, std::string fragmentPath) {

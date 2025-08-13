@@ -1,5 +1,3 @@
-#pragma once
-
 #include <includes.hpp>
 
 const unsigned int WINDOW_WIDTH = 960;
@@ -47,314 +45,181 @@ std::string trimStr(std::string str) {
   return str;
 }
 
-class vec2 {
-  public:
-  float x, y;
-
-  vec2() : x(0), y(0) {}
-  vec2(float a, float b) : x(a), y(b) {}
-
-  float dot(vec2 other) const {
-    return this->x * other.x + this->y * other.y;
-  }
-
-  vec2 operator+(vec2 other) const {
-    return vec2(this->x + other.x, this->y + other.y);
-  }
-
-  vec2 operator-(vec2 other) const {
-    return vec2(this->x - other.x, this->y - other.y);
-  }
-
-  vec2 operator*(float scalar) const {
-    return vec2(this->x * scalar, this->y * scalar);
-  }
-
-  vec2 operator/(float scalar) const {
-    if (scalar == 0) {
-      LOG("Division by zero error", -1);
-      __debugbreak();
-    }
-
-    return vec2(this->x / scalar, this->y / scalar);
-  }
-
-  vec2 operator*(vec2 other) const {
-    return vec2(this->x * other.x, this->y * other.y);
-  }
-
-  vec2 operator/(vec2 other) const {
-    if (other.x == 0 || other.y == 0) {
-      LOG("Division by zero error", -1);
-      __debugbreak();
-    }
-
-    return vec2(this->x / other.x, this->y / other.y);
-  }
-
-  bool operator==(vec2 other) const {
-    return floatCompare(this->x, other.x) && floatCompare(this->y, other.y);
-  }
-
-  bool operator!=(vec2 other) const {
-    return !(*this == other);
-  }
-};
-
-vec2 operator/(float scalar, const vec2 &v) {
-  return vec2(scalar / v.x, scalar / v.y);
-}
-
-class vec3 {
+class Vec4 {
   public:
   union {
-    struct { float x, y, z; };
-    struct { float r, g, b; };
+    struct { float x; float y; float z; float w; };
+    struct { float r; float g; float b; float a; };
   };
 
-  vec3() : x(0), y(0), z(0) {}
-  vec3(float a, float b, float c) : x(a), y(b), z(c) {}
-  vec3(vec2 v, float c) : x(v.x), y(v.y), z(c) {}
+  Vec4() : x(0), y(0), z(0), w(0) {}
+  Vec4(float a, float b) : x(a), y(b), z(0), w(0) {}
+  Vec4(float a, float b, float c) : x(a), y(b), z(c), w(0) {}
+  Vec4(float a, float b, float c, float d) : x(a), y(b), z(c), w(d) {}
 
-  float dot(vec3 other) const {
-    return this->x * other.x + this->y * other.y + this->z * other.z;
+
+  static float dot(const Vec4 &v1, const Vec4 &v2) {
+    return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z + v1.w * v2.w;
   }
 
-  vec3 cross(vec3 other) const {
-    return vec3(
-      this->y * other.z - this->z * other.y,
-      this->z * other.x - this->x * other.z,
-      this->x * other.y - this->y * other.x
+  static Vec4 cross(const Vec4 &v1, Vec4 &v2) {
+    return Vec4(
+      v1.y * v2.z - v1.z * v2.y,
+      v1.z * v2.x - v1.x * v2.z,
+      v1.x * v2.y - v1.y * v2.x,
+      0
     );
-  }
-
-  vec3 operator+(vec3 other) const {
-    return vec3(this->x + other.x, this->y + other.y, this->z + other.z);
-  }
-
-  vec3 operator-(vec3 other) const {
-    return vec3(this->x - other.x, this->y - other.y, this->z - other.z);
-  }
-
-  vec3 operator*(float scalar) const {
-    return vec3(this->x * scalar, this->y * scalar, this->z * scalar);
-  }
-
-  vec3 operator/(float scalar) const {
-    if (scalar == 0) {
-      LOG("Division by zero error", -1);
-      __debugbreak();
-    }
-
-    return vec3(this->x / scalar, this->y / scalar, this->z / scalar);
-  }
-
-  vec3 operator*(vec3 other) const {
-    return vec3(this->x * other.x, this->y * other.y, this->z * other.z);
-  }
-
-  vec3 operator/(vec3 other) const {
-    if (other.x == 0 || other.y == 0 || other.z == 0) {
-      LOG("Division by zero error", -1);
-      __debugbreak();
-    }
-
-    return vec3(this->x / other.x, this->y / other.y, this->z / other.z);
-  }
-
-  bool operator==(vec3 other) const {
-    return floatCompare(this->x, other.x) && floatCompare(this->y, other.y) && floatCompare(this->z, other.z);
-  }
-
-  bool operator!=(vec3 other) const {
-    return !(*this == other);
-  }
-
-  vec2 toVec2() const {
-    return vec2(this->x, this->y);
   }
 };
 
-vec3 operator/(float scalar, vec3 v) {
-  if (v.x == 0 || v.y == 0 || v.z == 0) {
-    LOG("Division by zero error", -1);
-    __debugbreak();
-  }
-  return vec3(scalar / v.x, scalar / v.y, scalar / v.z);
+Vec4 operator+(const Vec4 &v1, const Vec4 &v2) {
+  return Vec4(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z, v1.w + v2.w);
 }
 
-class mat2 {
+Vec4 operator-(const Vec4 &v1, const Vec4 &v2) {
+  return Vec4(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z, v1.w - v2.w);
+}
+
+Vec4 operator*(const Vec4 &v, float s) {
+  return Vec4(v.x * s, v.y * s, v.z * s, v.w * s);
+}
+
+Vec4 operator/(const Vec4 &v, float s) {
+  return Vec4(v.x / s, v.y / s, v.z / s, v.w / s);
+}
+
+Vec4 operator/(float s, const Vec4 &v) {
+  return Vec4(s / v.x, s / v.y, s / v.z, s / v.w);
+}
+
+Vec4 operator*(const Vec4 &v1, const Vec4 &v2) {
+  return Vec4(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z, v1.w * v2.w);
+}
+
+Vec4 operator/(const Vec4 &v1, const Vec4 &v2) {
+  return Vec4(v1.x / v2.x, v1.y / v2.y, v1.z / v2.z, v1.w / v2.w);
+}
+
+class Mat4 {
   public:
-  float m[2][2];
+  float m[4][4];
 
-  mat2() {
-    for (int i = 0; i < 2; i++) {
-      for (int j = 0; j < 2; j++) {
-        m[i][j] = i == j ? 1 : 0;
+  const static Mat4 IDENTITY;
+
+  Mat4() {
+    for (int i = 0; i < 4; i++) {
+      for (int j = 0; j < 4; j++) {
+        m[i][j] = 0;
       }
     }
   }
 
-  mat2(float a, float b, float c, float d) {
-    m[0][0] = a; m[0][1] = b;
-    m[1][0] = c; m[1][1] = d;
+  Mat4(Vec4 ihat, Vec4 jhat, Vec4 khat, Vec4 lhat) {
+    m[0][0] = ihat.x;  m[1][0] = jhat.x;  m[2][0] = khat.x;  m[3][0] = lhat.x;
+    m[0][1] = ihat.y;  m[1][1] = jhat.y;  m[2][1] = khat.y;  m[3][1] = lhat.y;
+    m[0][2] = ihat.z;  m[1][2] = jhat.z;  m[2][2] = khat.z;  m[3][2] = lhat.z;
+    m[0][3] = ihat.w;  m[1][3] = jhat.w;  m[2][3] = khat.w;  m[3][3] = lhat.w;
   }
 
-  mat2(vec2 col1, vec2 col2) {
-    m[0][0] = col1.x; m[0][1] = col1.y;
-    m[1][0] = col2.x; m[1][1] = col2.y;
-  }
-
-  mat2(float matrix[]) {
-    if (sizeof(matrix) / 32 != 4) {
-      LOG("Invalid matrix size", -1);
-      __debugbreak();
-    }
-
-    m[0][0] = matrix[0]; m[0][1] = matrix[1];
-    m[1][0] = matrix[2]; m[1][1] = matrix[3];
-  }
-
-  vec2 operator*(vec2 v) const {
-    return vec2(
-      m[0][0] * v.x + m[0][1] * v.y,
-      m[1][0] * v.x + m[1][1] * v.y
-    );
-  }
-
-  mat2 operator*(mat2 other) const {
-    mat2 result;
-    for (int i = 0; i < 2; i++) {
-      for (int j = 0; j < 2; j++) {
-        result.m[i][j] = 0;
-        for (int k = 0; k < 2; k++) {
-          result.m[i][j] += this->m[i][k] * other.m[k][j];
-        }
-      }
-    }
-    return result;
-  }
-
-  mat2 operator/(float scalar) const {
-    if (scalar == 0) {
-      LOG("Division by zero error", -1);
-      __debugbreak();
-    }
-
-    return mat2(
-      m[0][0] / scalar, m[0][1] / scalar,
-      m[1][0] / scalar, m[1][1] / scalar
-    );
+  Mat4(float a, float b, float c, float d, float e, float f, float g, float h, float i, float j, float k, float l, float m, float n, float o, float p) {
+    this->m[0][0] = a; this->m[1][0] = e; this->m[2][0] = i; this->m[3][0] = m;
+    this->m[0][1] = b; this->m[1][1] = f; this->m[2][1] = j; this->m[3][1] = n;
+    this->m[0][2] = c; this->m[1][2] = g; this->m[2][2] = k; this->m[3][2] = o;
+    this->m[0][3] = d; this->m[1][3] = h; this->m[2][3] = l; this->m[3][3] = p;
   }
 
   float determinant() const {
-    return m[0][0] * m[1][1] - m[0][1] * m[1][0];
+    float det = 0.0f;
+    for (int col = 0; col < 4; ++col) {
+      float minor[3][3];
+      for (int i = 1; i < 4; ++i) {
+        int mj = 0;
+        for (int j = 0; j < 4; ++j) {
+          if (j == col) continue;
+          minor[mj][i - 1] = m[j][i];
+          ++mj;
+        }
+      }
+      float minorDet =
+        minor[0][0] * (minor[1][1] * minor[2][2] - minor[1][2] * minor[2][1]) -
+        minor[0][1] * (minor[1][0] * minor[2][2] - minor[1][2] * minor[2][0]) +
+        minor[0][2] * (minor[1][0] * minor[2][1] - minor[1][1] * minor[2][0]);
+      det += ((col % 2 == 0) ? 1.0f : -1.0f) * m[col][0] * minorDet;
+    }
+    return det;
   }
 
-  mat2 adjugate() const {
-    return mat2(
-      m[1][1], -m[0][1],
-      -m[1][0], m[0][0]
-    );
+  Mat4 adjugate() const {
+    Mat4 result;
+    for (int col = 0; col < 4; ++col) {
+      for (int row = 0; row < 4; ++row) {
+        float minor[3][3];
+        int mi = 0;
+        for (int i = 0; i < 4; ++i) {
+          if (i == col) continue;
+          int mj = 0;
+          for (int j = 0; j < 4; ++j) {
+            if (j == row) continue;
+            minor[mj][mi] = m[i][j];
+            ++mj;
+          }
+          ++mi;
+        }
+        float minorDet =
+          minor[0][0] * (minor[1][1] * minor[2][2] - minor[1][2] * minor[2][1]) -
+          minor[0][1] * (minor[1][0] * minor[2][2] - minor[1][2] * minor[2][0]) +
+          minor[0][2] * (minor[1][0] * minor[2][1] - minor[1][1] * minor[2][0]);
+        result.m[col][row] = ((col + row) % 2 == 0 ? 1.0f : -1.0f) * minorDet;
+      }
+    }
+    Mat4 adj;
+    for (int col = 0; col < 4; ++col)
+      for (int row = 0; row < 4; ++row)
+        adj.m[col][row] = result.m[row][col];
+    return adj;
   }
 
-  mat2 inverse() const {
+  Mat4 inverse() const {
     float det = determinant();
     if (det == 0) {
       LOG("Matrix is not invertible", -1);
       __debugbreak();
     }
-    return adjugate() / det;
-  }
-};
-
-class mat3 {
-  public:
-  float m[3][3];
-
-  mat3() {
-    for (int i = 0; i < 3; i++) {
-      for (int j = 0; j < 3; j++) {
-        m[i][j] = i == j ? 1 : 0;
-      }
-    }
-  }
-
-  mat3(float a, float b, float c, float d, float e, float f, float g, float h, float i) {
-    m[0][0] = a; m[0][1] = b; m[0][2] = c;
-    m[1][0] = d; m[1][1] = e; m[1][2] = f;
-    m[2][0] = g; m[2][1] = h; m[2][2] = i;
-  }
-
-  mat3(vec3 col1, vec3 col2, vec3 col3) {
-    m[0][0] = col1.x; m[0][1] = col1.y; m[0][2] = col1.z;
-    m[1][0] = col2.x; m[1][1] = col2.y; m[1][2] = col2.z;
-    m[2][0] = col3.x; m[2][1] = col3.y; m[2][2] = col3.z;
-  }
-
-  vec3 operator*(vec3 v) {
-    return vec3(
-      m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z,
-      m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z,
-      m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z
-    );
-  }
-
-  mat3 operator*(mat3 other) const {
-    mat3 result;
-    for (int i = 0; i < 3; i++) {
-      for (int j = 0; j < 3; j++) {
-        result.m[i][j] = 0;
-        for (int k = 0; k < 3; k++) {
-          result.m[i][j] += this->m[i][k] * other.m[k][j];
-        }
-      }
-    }
+    Mat4 adj = adjugate();
+    Mat4 result;
+    for (int col = 0; col < 4; ++col)
+      for (int row = 0; row < 4; ++row)
+        result.m[col][row] = adj.m[col][row] / det;
     return result;
   }
-
-  mat3 operator/(float scalar) const {
-    if (scalar == 0) {
-      LOG("Division by zero error", -1);
-      __debugbreak();
-    }
-    return mat3(
-      m[0][0] / scalar, m[0][1] / scalar, m[0][2] / scalar,
-      m[1][0] / scalar, m[1][1] / scalar, m[1][2] / scalar,
-      m[2][0] / scalar, m[2][1] / scalar, m[2][2] / scalar
-    );
-  }
-
-  float determinant() const {
-    return (
-      m[0][0] * (m[1][1] * m[2][2] - m[2][1] * m[1][2]) -
-      m[0][1] * (m[1][0] * m[2][2] - m[2][0] * m[1][2]) +
-      m[0][2] * (m[1][0] * m[2][1] - m[2][0] * m[1][1])
-    );
-  }
-
-  mat3 adjugate() const {
-    mat3 adj;
-    adj.m[0][0] =  (m[1][1]*m[2][2] - m[1][2]*m[2][1]);
-    adj.m[0][1] = -(m[0][1]*m[2][2] - m[0][2]*m[2][1]);
-    adj.m[0][2] =  (m[0][1]*m[1][2] - m[0][2]*m[1][1]);
-
-    adj.m[1][0] = -(m[1][0]*m[2][2] - m[1][2]*m[2][0]);
-    adj.m[1][1] =  (m[0][0]*m[2][2] - m[0][2]*m[2][0]);
-    adj.m[1][2] = -(m[0][0]*m[1][2] - m[0][2]*m[1][0]);
-
-    adj.m[2][0] =  (m[1][0]*m[2][1] - m[1][1]*m[2][0]);
-    adj.m[2][1] = -(m[0][0]*m[2][1] - m[0][1]*m[2][0]);
-    adj.m[2][2] =  (m[0][0]*m[1][1] - m[0][1]*m[1][0]);
-    return adj;
-  }
-
-  mat3 inverse() const {
-    float det = this->determinant();
-    if (det == 0) {
-      LOG("Matrix is not invertible", -1);
-      __debugbreak();
-    }
-    return this->adjugate() / det;
-  }
 };
+
+Mat4 operator*(const Mat4 &a, const Mat4 &b) {
+  Mat4 result;
+  for (int col = 0; col < 4; col++) {
+    for (int row = 0; row < 4; row++) {
+      result.m[col][row] =
+        a.m[0][row] * b.m[col][0] +
+        a.m[1][row] * b.m[col][1] +
+        a.m[2][row] * b.m[col][2] +
+        a.m[3][row] * b.m[col][3];
+    }
+  }
+  return result;
+}
+
+Vec4 operator*(const Mat4 &m, const Vec4 &v) {
+  return Vec4(
+    m.m[0][0] * v.x + m.m[1][0] * v.y + m.m[2][0] * v.z + m.m[3][0] * v.w,
+    m.m[0][1] * v.x + m.m[1][1] * v.y + m.m[2][1] * v.z + m.m[3][1] * v.w,
+    m.m[0][2] * v.x + m.m[1][2] * v.y + m.m[2][2] * v.z + m.m[3][2] * v.w,
+    m.m[0][3] * v.x + m.m[1][3] * v.y + m.m[2][3] * v.z + m.m[3][3] * v.w
+  );
+}
+
+const Mat4 Mat4::IDENTITY = Mat4(
+  1, 0, 0, 0,
+  0, 1, 0, 0,
+  0, 0, 1, 0,
+  0, 0, 0, 1
+);

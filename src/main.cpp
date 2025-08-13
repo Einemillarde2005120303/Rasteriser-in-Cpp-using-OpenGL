@@ -24,7 +24,7 @@ int main() {
     __debugbreak();
   }
 
-  Shader shader = Shader("shaders\\shader.vert", "shaders\\shader.frag");
+  Shader shader = Shader("shaders/shader.vert", "shaders/shader.frag");
 
   glClearColor(1, 1, 1, 1); CHECK();
 
@@ -63,6 +63,8 @@ int main() {
 
   std::vector<unsigned char> pixels(WINDOW_WIDTH * WINDOW_HEIGHT * 3);
 
+  Camera camera;
+
   unsigned int texture;
   glGenTextures(1, &texture); CHECK();
   glBindTexture(GL_TEXTURE_2D, texture); CHECK();
@@ -77,7 +79,7 @@ int main() {
   glBindTexture(GL_TEXTURE_2D, texture); CHECK();
 
   while (!glfwWindowShouldClose(window)) {
-    createImage(pixels);
+    createImage(pixels, camera);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels.data()); CHECK();
 
     glClear(GL_COLOR_BUFFER_BIT); CHECK();

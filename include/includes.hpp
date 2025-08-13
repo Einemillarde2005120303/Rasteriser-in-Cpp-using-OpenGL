@@ -12,7 +12,8 @@
 #include <random>
 #include <tuple>
 
-#include "../src/debug.cpp"
-#include "../src/utils.cpp"
-#include "../src/shader.cpp"
-#include "../src/rasterizer.cpp"
+#include "debug.hpp"
+#include "utils.hpp"
+#include "shader.hpp"
+#include "camera.hpp"
+#include "rasterizer.hpp"
