@@ -2,6 +2,38 @@
 
 #include <includes.hpp>
 
+std::tuple<std::vector<vec3>, std::vector<vec3>, std::vector<vec2>, std::vector<unsigned int>> parseObjFile(std::string path) {
+  std::vector<vec3> vertices;
+  std::vector<vec3> vertexNormals;
+  std::vector<vec2> vertexTextures;
+  std::vector<unsigned int> faces;
+
+  std::vector<std::string> lines = splitStr(trimStr(readFile(path)), '\n');
+
+  for (const std::string& line : lines) {
+    if (line.starts_with("v ")) {
+      std::vector<std::string> parts = splitStr(line.substr(2), ' ');
+      vertices.emplace_back(std::stof(parts[0]), std::stof(parts[1]), std::stof(parts[2]));
+    } else if (line.starts_with("vn ")) {
+      std::vector<std::string> parts = splitStr(line.substr(3), ' ');
+      vertexNormals.emplace_back(std::stof(parts[0]), std::stof(parts[1]), std::stof(parts[2]));
+    } else if (line.starts_with("vt ")) {
+      std::vector<std::string> parts = splitStr(line.substr(3), ' ');
+      vertexTextures.emplace_back(std::stof(parts[0]), std::stof(parts[1]));
+    } else if (line.starts_with("f ")) {
+      std::vector<std::string> parts = splitStr(line.substr(2), ' ');
+      for (const std::string& part : parts) {
+        std::vector<std::string> indices = splitStr(part, '/');
+        faces.push_back(static_cast<unsigned int>(std::stoi(indices[0]) - 1));
+        faces.push_back(static_cast<unsigned int>(std::stoi(indices[1]) - 1));
+        faces.push_back(static_cast<unsigned int>(std::stoi(indices[2]) - 1));
+      }
+    }
+  }
+
+  return std::make_tuple(vertices, vertexNormals, vertexTextures, faces);
+}
+
 float signedTriangleArea(vec2 a, vec2 b, vec2 c) {
   vec2 ab = b - a;
   return (c - a).dot(vec2(ab.y, -ab.x)) * 0.5f;
@@ -23,15 +55,8 @@ bool pointInsideTriangle(vec2 p, vec2 a, vec2 b, vec2 c, vec3* barycentricCoords
   return (areaABP >= 0 && areaBCP >= 0 && areaCAP >= 0);
 }
 
-void drawTriangles(unsigned char pixels[], float depthBuffer[], vec3 triangles[], vec3 colours[], unsigned int sizeTriangles) {
-  for (unsigned int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
-    depthBuffer[i] = INFINITY;
-    pixels[i * 3 + 0] = 0;
-    pixels[i * 3 + 1] = 0;
-    pixels[i * 3 + 2] = 0;
-  }
-
-  for (unsigned int tri = 0; tri < sizeTriangles / 3; tri++) {
+void drawTriangles(std::vector<unsigned char> pixels, std::vector<float> depthBuffer, std::vector<vec3> triangles, std::vector<vec3> colours) {
+  for (unsigned int tri = 0; tri < triangles.size() / 3; tri++) {
     vec3 v1 = (triangles[tri * 3 + 0] + vec3(1, -1, 0)) * vec3(WINDOW_WIDTH * 0.5f, WINDOW_HEIGHT * -0.5f, 1);
     vec3 v2 = (triangles[tri * 3 + 1] + vec3(1, -1, 0)) * vec3(WINDOW_WIDTH * 0.5f, WINDOW_HEIGHT * -0.5f, 1);
     vec3 v3 = (triangles[tri * 3 + 2] + vec3(1, -1, 0)) * vec3(WINDOW_WIDTH * 0.5f, WINDOW_HEIGHT * -0.5f, 1);
@@ -62,6 +87,30 @@ void drawTriangles(unsigned char pixels[], float depthBuffer[], vec3 triangles[]
   }
 }
 
-void createImage(unsigned char pixels[], float depthBuffer[], vec3 triangles[], vec3 colours[], unsigned int sizeTriangles) {
-  drawTriangles(pixels, depthBuffer, triangles, colours, sizeTriangles);
+void createImage(std::vector<unsigned char> pixels) {
+  std::tuple<std::vector<vec3>, std::vector<vec3>, std::vector<vec2>, std::vector<unsigned int>> objData = parseObjFile("assets/scene.obj");
+
+  std::vector<vec3> vertices = std::get<0>(objData);
+  std::vector<vec3> normals = std::get<1>(objData);
+  std::vector<vec2> texCoords = std::get<2>(objData);
+  std::vector<unsigned int> indices = std::get<3>(objData);
+
+  std::vector<vec3> triangles;
+  for (unsigned int i = 0; i < indices.size() / 9; i += 9) {
+    triangles.push_back(vertices[indices[i + 0]]);
+    triangles.push_back(vertices[indices[i + 3]]);
+    triangles.push_back(vertices[indices[i + 6]]);
+  }
+
+  std::vector<vec3> colours(triangles.size());
+
+  for (unsigned int i = 0; i < triangles.size(); i++) {
+    colours[i] = vec3(randomFloat(0.0f, 1.0f), randomFloat(0.0f, 1.0f), randomFloat(0.0f, 1.0f));
+  }
+
+  std::vector<float> depthBuffer(WINDOW_WIDTH * WINDOW_HEIGHT, INFINITY);
+
+  std::fill(pixels.begin(), pixels.end(), 0);
+
+  drawTriangles(pixels, depthBuffer, triangles, colours);
 }

@@ -61,30 +61,7 @@ int main() {
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float))); CHECK();
   glEnableVertexAttribArray(1); CHECK();
 
-  unsigned char *pixels = new unsigned char[WINDOW_WIDTH * WINDOW_HEIGHT * 3];
-  float *depthBuffer = new float[WINDOW_WIDTH * WINDOW_HEIGHT];
-
-  vec3 triangles[] = {
-    vec3(0.2, 0.9, 1),
-    vec3(-0.7, -0.9, 1e-5f),
-    vec3(-0.6, -0.1, 1e-5f),
-
-    vec3(-0.3, 0.9, 1e-5f),
-    vec3(-0.5, 0.9, 1e-5f),
-    vec3(0.9, -0.9, 1),
-
-    vec3(0.9, -0.4, 1e-5f),
-    vec3(0.9, -0.6, 1e-5f),
-    vec3(-1.5, -0.6, 1)
-  };
-
-  unsigned int sizeTriangles = 9;
-
-  vec3 colours[sizeTriangles / 3];
-
-  for (unsigned int i = 0; i < sizeTriangles / 3; i++) {
-    colours[i] = vec3(randomFloat(0.0f, 1.0f), randomFloat(0.0f, 1.0f), randomFloat(0.0f, 1.0f));
-  }
+  std::vector<unsigned char> pixels(WINDOW_WIDTH * WINDOW_HEIGHT * 3);
 
   unsigned int texture;
   glGenTextures(1, &texture); CHECK();
@@ -100,8 +77,8 @@ int main() {
   glBindTexture(GL_TEXTURE_2D, texture); CHECK();
 
   while (!glfwWindowShouldClose(window)) {
-    createImage(pixels, depthBuffer, triangles, colours, sizeTriangles);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels); CHECK();
+    createImage(pixels);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels.data()); CHECK();
 
     glClear(GL_COLOR_BUFFER_BIT); CHECK();
     glDrawElements(GL_TRIANGLES, indicesLength, GL_UNSIGNED_INT, 0); CHECK();
@@ -109,9 +86,6 @@ int main() {
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
-
-  delete[] pixels;
-  delete[] depthBuffer;
 
   glfwTerminate();
 

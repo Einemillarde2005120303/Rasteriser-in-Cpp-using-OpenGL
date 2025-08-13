@@ -10,6 +10,7 @@
 #include <sstream>
 #include <algorithm>
 #include <random>
+#include <tuple>
 
 #include "../src/debug.cpp"
 #include "../src/utils.cpp"
